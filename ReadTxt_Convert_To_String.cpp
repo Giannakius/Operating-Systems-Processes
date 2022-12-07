@@ -6,7 +6,7 @@
 using namespace std;
 int main()
 {
-    int segmentation_degree = 10000; // Bathmos Katatmishs
+    int segmentation_degree = 100; // Bathmos Katatmishs
     segmentation_degree = segmentation_degree ;
 
     ////// Make The txt to string ////////////
