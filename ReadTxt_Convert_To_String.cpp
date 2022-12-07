@@ -6,8 +6,7 @@
 using namespace std;
 int main()
 {
-    int segmentation_degree = 100; // Bathmos Katatmishs
-    segmentation_degree = segmentation_degree ;
+    int segmentation_degree = 1000; // Bathmos Katatmishs   // Posa kommatia tha xwristei to text
 
     ////// Make The txt to string ////////////
     ifstream file("BigTest.txt", ios::binary);
@@ -29,28 +28,33 @@ int main()
     lines_count = 0 ;
     for (x=0;x<string_size;x++){
         if (fileStr[x]=='\n'){
-            lines_count++;
+            lines_count++;  // athroisma grammwn sto text
         }
     }
 
-
+    int lines_per_section = (lines_count+1) / segmentation_degree ;   // grammes ana tmima 
+    
     string array1[segmentation_degree];         // Array with the segmended string in its rows
-    int temp = 0 , k = 0 , start = 0 , counter =0;
+    int temp = 0 , k = 0 , start = 0 , counter =0 , X = 0 ;
 
-    while (counter<=lines_count){
-        while (k<=string_size and fileStr[k]!='\n' ){
+    while (X<segmentation_degree){
+        while (k<=string_size and counter<lines_per_section){
             k++;    // find all the chars until the new line
+            if (fileStr[k]=='\n'){
+                counter++;
+            }
         }
         array1[temp] = fileStr.substr(start,k);     // copy them to the array [temp]
         temp = temp + 1;
         start = start + k +1;   // fix the start for the new start
-    //cout << k;
-    counter = counter + 1 ;     // lines counter to stop the while
+        //cout << k;
+    X = X + 1 ;     // lines counter to stop the while
     }
 
-    // Print the Array
-    for (x=0; x<= lines_count ; x++){
-        cout << array1[x] << '\n';
+    //Print the Array
+    
+    for (x=0; x< segmentation_degree ; x++){
+        cout << array1[x] << '\n' << '\n' << '\n';
     }
 
     return 0;
