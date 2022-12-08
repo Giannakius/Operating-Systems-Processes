@@ -79,6 +79,18 @@ sharedMemory semlock;
         return 1;
     }
 
+     for (i = 0; i < K; i++)
+    {
+        if ((pids[i] = fork()) < 0)
+        { // Fork new process
+            perror("Failed to create process");
+            return 1;
+        }
+        if (pids[i] == 0){
+
+        }
+    }
+
     //ftianxo ta paidia 
         //ola ayta N fores
             //ta paidia prepei na zitane zonh kai grammi
