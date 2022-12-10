@@ -10,8 +10,52 @@
 #include <sys/wait.h>
 #include "shared_memory.h"
 
-
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
+
+
+int text_separation(const char * txt_name , int segmentation_degree)
+{
+    ////// Make The txt to string ////////////
+    ifstream file(txt_name, ios::binary);
+    string fileStr;
+
+    istreambuf_iterator<char> inputIt(file), emptyInputIt;
+    back_insert_iterator<string> stringInsert(fileStr);
+
+    copy(inputIt, emptyInputIt, stringInsert);
+    //////////////////////////////////////////
+
+    int string_size = fileStr.length();     // Length of .txt file
+    
+    int lines_count = 0 ;                   // Count how many rows in .txt
+    int x;
+    lines_count = 0 ;
+    for (x=0;x<string_size;x++){
+        if (fileStr[x]=='\n'){
+            lines_count++;  // athroisma grammwn sto text
+        }
+    }
+
+    int lines_per_section = (lines_count+1) / segmentation_degree ;   // grammes ana tmima 
+    
+    string array1[segmentation_degree];         // Array with the segmended string in its rows
+    int temp = 0 , k = 0 , start = 0 , counter =0 , X = 0 ;
+
+    while (X<segmentation_degree){
+        while (k<=string_size and counter<lines_per_section){
+            k++;    // find all the chars until the new line
+            if (fileStr[k]=='\n'){
+                counter++;
+            }
+        }
+        array1[temp] = fileStr.substr(start,k);     // copy them to the array [temp]
+        temp = temp + 1;
+        start = start + k +1;   // fix the start for the new start
+    X = X + 1 ;     // lines counter to stop the while
+    }
+
+    return array1;
+}
 
 
 int main(int argc, char *argv[]){
@@ -55,7 +99,7 @@ int main(int argc, char *argv[]){
 
     //ftianxo to shm.id:shered_memory id 
     // arxikopoio to semlck
-sharedMemory semlock;
+    sharedMemory semlock;
     // Create memory segment
     int Shared_Memory_id ;
     bool In_Use[Partition_Degree];
@@ -79,7 +123,11 @@ sharedMemory semlock;
         return 1;
     }
 
-     for (i = 0; i < K; i++)
+    // Children array
+    pid_t pids[Kids_Num];
+    
+    int i ;
+    for (i = 0; i < Kids_Num; i++)
     {
         if ((pids[i] = fork()) < 0)
         { // Fork new process
@@ -87,25 +135,17 @@ sharedMemory semlock;
             return 1;
         }
         if (pids[i] == 0){
+            child(...);
+        }
+        if (== 1){
 
         }
     }
 
-    //ftianxo ta paidia 
-        //ola ayta N fores
-            //ta paidia prepei na zitane zonh kai grammi
-            //ta paidia prepei na perimenoyn mexri h shm(SHARED memory) na exei thn zoni kai thn grammi poy zitane
-            //na dinei mia apontisi
-            //na perimenoyn ligo 20ms
-            //na zitane me tyxaio tropo mia allh tixaia zoni 'h thn idia zoni jana me allh grammi 
-        //telos N foron + metrame to xrono poso pire olo ayto
-// prepei na kanei Με την παραλαβή της κάθε γραμμής η διεργασία αποτυπώνει σε αρχείο καταγραφής (1 ανά 
-// διεργασία παιδί) το χρόνο υποβολής του αιτήματος, το χρόνο της απάντησης, το αίτημα στη 
-// μορφή <x,y> όπως αναλύθηκε παραπάνω και την ίδια τη γραμμή.
-// Η μητρική διεργασία που φέρει την ευθύνη για την αντικατάσταση των τμημάτων του αρχείου 
-// στη μνήμη επίσης αναφέρει το χρόνο εισόδου και εξόδου ενός τμήματος από τη μνήμη
-
-   
+    // epilogh tyxaia 
+    srand((unsigned) time(NULL));
+    int random_line = rand() % Partition_Degree ;
+    
 
 
 

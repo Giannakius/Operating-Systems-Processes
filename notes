@@ -1,0 +1,30 @@
+διαβάζει ορίσματα 
+1ο ορισμα είναι το ονομα του αρχείου
+2ο όρισμα είναι βαθμός κατάτμισης αρχείου
+3ο όρισμα είναι πλήθος αιτήσεων για το κάθε παιδί
+4o όρισμα είναι το πλήθος των παιδιών
+
+
+αρχικοποιεί sepaphore
+αρχικοποιεί shared memory
+
+
+αρχικοποιήση παιδιών
+
+
+
+    //ftianxo ta paidia 
+        //ola ayta N fores
+            //ta paidia prepei na zitane zonh kai grammi
+            //ta paidia prepei na perimenoyn mexri h shm(SHARED memory) na exei thn zoni kai thn grammi poy zitane
+            //na dinei mia apontisi
+            //na perimenoyn ligo 20ms
+            //na zitane me tyxaio tropo mia allh tixaia zoni 'h thn idia zoni jana me allh grammi 
+        //telos N foron + metrame to xrono poso pire olo ayto
+// prepei na kanei Με την παραλαβή της κάθε γραμμής η διεργασία αποτυπώνει σε αρχείο καταγραφής (1 ανά 
+// διεργασία παιδί) το χρόνο υποβολής του αιτήματος, το χρόνο της απάντησης, το αίτημα στη 
+// μορφή <x,y> όπως αναλύθηκε παραπάνω και την ίδια τη γραμμή.
+// Η μητρική διεργασία που φέρει την ευθύνη για την αντικατάσταση των τμημάτων του αρχείου 
+// στη μνήμη επίσης αναφέρει το χρόνο εισόδου και εξόδου ενός τμήματος από τη μνήμη
+
+   
