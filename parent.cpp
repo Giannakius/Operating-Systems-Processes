@@ -1,7 +1,9 @@
+#include <fstream>
+#include <iostream>
 #include <stdio.h>
+#include <string>
 #include <stdlib.h>
 #include <unistd.h>
-#include <string.h>
 #include <limits.h>
 #include <semaphore.h>
 #include <time.h>
@@ -134,8 +136,9 @@ int main(int argc, char *argv[]){
             perror("Failed to create process");
             return 1;
         }
-        if (pids[i] == 0){
-            child(...);
+        if(pids[i] == 0){          // If it is child process
+            child(File_Lines, Partition_Degree, i, semlock, requestProducer, answerProducer, answerConsumer);
+            exit(0);
         }
         if (== 1){
 

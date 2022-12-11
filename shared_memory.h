@@ -1,4 +1,3 @@
-
 #define MAXSIZE 100
 
 struct shared_memory{

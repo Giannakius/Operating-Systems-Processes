@@ -1,13 +1,13 @@
-ALL: parent
+ALL: parentdrab
 
-parent: parent.o child.o
-	gcc parent.o child.o -o parent -lpthread
+parentdrab: parentdrab.o child.o
+	gcc parentdrab.o child.o -o parentdrab -lpthread
 
-parent.o: parent.c
-	gcc -g -Wall -c parent.c
+parentdrab.o: parentdrab.c
+	gcc -g -Wall -c parentdrab.c
 
 child.o: child.c
 	gcc -g -Wall -c child.c
 
 clean:
-	rm -f parent parent.o child.o
+	rm -f parentdrab parentdrab.o child.o

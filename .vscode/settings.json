@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "iostream": "cpp",
-        "fcntl.h": "c"
+        "fcntl.h": "c",
+        "*.tcc": "cpp",
+        "string": "cpp",
+        "string_view": "cpp",
+        "cstdlib": "c"
     }
 }
