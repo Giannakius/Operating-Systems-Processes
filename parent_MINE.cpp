@@ -122,130 +122,131 @@ int main(int argc, char *argv[]) {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    // // Create shared memory
-    // struct shared_memory* Shared_memory;
-    // int shmid;
+    // Create shared memory
+    struct shared_memory* Shared_memory;
+    int shmid;
 
-    // if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
-    //     perror("Failed to create shared memory");
-    //     exit(1);
-    // }
+    if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
+        perror("Failed to create shared memory");
+        exit(1);
+    }
 
-    // // Attach memory segment
-    // Shared_memory = (shared_memory*)shmat(shmid, NULL, 0);
-    // if(Shared_memory == (void*)-1){
-    //     perror("Failed to attach memory segment");
-    //     exit(1);
-    // }
+    // Attach memory segment
+    Shared_memory = (shared_memory*)shmat(shmid, NULL, 0);
+    if(Shared_memory == (void*)-1){
+        perror("Failed to attach memory segment");
+        exit(1);
+    }
     
 
 
 
-    // // Create request semaphore
+    // Create request semaphore
 
-    // sem_t *generic = sem_open("generic", O_CREAT, SEM_PERMS, 0);
-    // if (generic == SEM_FAILED) {
-    //     perror("request parent semaphore error");
-    //     exit(1);
-    // }
+    sem_t *generic = sem_open("generic", O_CREAT, SEM_PERMS, 0);
+    if (generic == SEM_FAILED) {
+        perror("request parent semaphore error");
+        exit(1);
+    }
 
-    // // Child is ready to post new segment on shared memory
+    // Child is ready to post new segment on shared memory
 
-    // sem_t *request_parent = sem_open("request_parent", O_CREAT, SEM_PERMS, 0);
-    // if (request_parent == SEM_FAILED) {
-    //     perror("request parent semaphore error");
-    //     exit(1);
-    // }
+    sem_t *request_parent = sem_open("request_parent", O_CREAT, SEM_PERMS, 0);
+    if (request_parent == SEM_FAILED) {
+        perror("request parent semaphore error");
+        exit(1);
+    }
 
-    // // Parent upload text segment to shared memory
+    // Parent upload text segment to shared memory
 
-    // sem_t *parent_answer = sem_open("parent_answer", O_CREAT, SEM_PERMS, 0);
-    // if (parent_answer == SEM_FAILED) {
-    //     perror("request parent semaphore error");
-    //     exit(1);
-    // }
+    sem_t *parent_answer = sem_open("parent_answer", O_CREAT, SEM_PERMS, 0);
+    if (parent_answer == SEM_FAILED) {
+        perror("request parent semaphore error");
+        exit(1);
+    }
 
-    // // All children ready
+    // All children ready
 
-    // sem_t *children_ready = sem_open("children_ready", O_CREAT, SEM_PERMS, 0);
-    // if (children_ready == SEM_FAILED) {
-    //     perror("request parent semaphore error");
-    //     exit(1);
-    // }
+    sem_t *children_ready = sem_open("children_ready", O_CREAT, SEM_PERMS, 0);
+    if (children_ready == SEM_FAILED) {
+        perror("request parent semaphore error");
+        exit(1);
+    }
 
 
-    // // Create an array of semaphoreshes one per segment
-    // sem_t* segment_semaphores = new sem_t[Lines_Count/Segmentation_Degree];
+    // Create an array of semaphoreshes one per segment
+    sem_t** segment_semaphores;
  
-    // for (int i = 0; i < Segmentation_Degree; i++) {
+    for (int i = 0; i < Segmentation_Degree; i++) {
+        segment_semaphores[i] = new sem_t[Lines_Count/Segmentation_Degree] ;
 
-    //     char buffer[120];
-    //     snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
+        char buffer[120];
+        snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
         
-    //     segment_semaphores[i] = sem_open(buffer, O_CREAT, SEM_PERMS, 0);
-    //     if (segment_semaphores[i] == SEM_FAILED) {
-    //         fprintf(stderr, "%dth semaphore open fail\n", i);
-    //         exit(1);
-    //     }
-    // }
+        segment_semaphores[i] = sem_open(buffer, O_CREAT, SEM_PERMS, 0);
+        if (segment_semaphores[i] == SEM_FAILED) {
+            fprintf(stderr, "%dth semaphore open fail\n", i);
+            exit(1);
+        }
+    }
 
     
 
-    // // Create childs
-    // int *pid = malloc(Number_Of_Childs*sizeof(int));
-    // for(int i = 0; i<Number_Of_Childs ; i++) {
-    //    pid[i] = fork();
-    // }
+    // Create childs
+    int *pid = malloc(Number_Of_Childs*sizeof(int));
+    for(int i = 0; i<Number_Of_Childs ; i++) {
+       pid[i] = fork();
+    }
 
-    // srand(time(NULL));
-    // for(int i = 0; i < Number_Of_Childs; i++) {
-    //     if(pid[i] < 0) {
-    //         perror("Fork failed");
-    //         exit(1);
-    //     }
+    srand(time(NULL));
+    for(int i = 0; i < Number_Of_Childs; i++) {
+        if(pid[i] < 0) {
+            perror("Fork failed");
+            exit(1);
+        }
 
-    //     // Children code
-    //     if (pid[i] == 0) {
-    //         // Number of requests
-    //         int k = 0;
-    //         while (k<Number_of_requests) {
+        // Children code
+        if (pid[i] == 0) {
+            // Number of requests
+            int k = 0;
+            while (k<Number_of_requests) {
 
-    //             // <a,b> = <segment,line>
-    //             int Random_Segment,Random_Line;
-    //             if (k == 0) {
-    //                 Random_Segment = rand() % Num_of_Segments;
-    //                 Random_Line = rand() % Lines_Per_Segment; 
-    //             }
-    //             else {
-    //                ;
-    //             }
-    //             if(sem_wait(generic) < 0) {  
-    //             fprintf(stderr, "%dth semaphore wait fail\n", i);
-    //             exit(1);
-    //             }
+                // <a,b> = <segment,line>
+                int Random_Segment,Random_Line;
+                if (k == 0) {
+                    Random_Segment = rand() % Num_of_Segments;
+                    Random_Line = rand() % Lines_Per_Segment; 
+                }
+                else {
+                   ;
+                }
+                if(sem_wait(generic) < 0) {  
+                fprintf(stderr, "%dth semaphore wait fail\n", i);
+                exit(1);
+                }
 
-    //             Shared_memory->temp_Segment = Random_Segment;
+                Shared_memory->temp_Segment = Random_Segment;
                 
-    //             if(sem_post(request_parent < 0)) { 
-    //                 perror("request_parent_post failed on parent");
-    //                 exit(1);
-    //             }
+                if(sem_post(request_parent < 0)) { 
+                    perror("request_parent_post failed on parent");
+                    exit(1);
+                }
 
-    //             if(sem_wait(parent_answer) < 0) {  
-    //             fprintf(stderr, "%dth semaphore wait fail\n", i);
-    //             exit(1);
-    //             }
+                if(sem_wait(parent_answer) < 0) {  
+                fprintf(stderr, "%dth semaphore wait fail\n", i);
+                exit(1);
+                }
 
-    //         }           
-    //         return;
-    //     } 
-    //     if (i==Number_Of_Childs-1) {    // an einai to teleutaio paidi poy dimioyrgeitai
-    //         if(sem_post(children_ready < 0)) { 
-    //             perror("request_parent_post failed on parent");
-    //             exit(1);
-    //         }
-    //     }
-    // }
+            }           
+            return;
+        } 
+        if (i==Number_Of_Childs-1) {    // an einai to teleutaio paidi poy dimioyrgeitai
+            if(sem_post(children_ready < 0)) { 
+                perror("request_parent_post failed on parent");
+                exit(1);
+            }
+        }
+    }
 
     // // Parent code
 
