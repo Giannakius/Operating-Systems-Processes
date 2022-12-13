@@ -111,13 +111,15 @@ int main(int argc, char *argv[]) {
     // Create shared memory
     struct shared_memory* Shared_memory;
     int shmid;
+
     if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
         perror("Failed to create shared memory");
         exit(1);
     }
 
     // Attach memory segment
-    if((Shared_memory = shmat(shmid, NULL, 0)) == (void*)-1){
+    Shared_memory = (shared_memory*)shmat(shmid, NULL, 0);
+    if(Shared_memory == (void*)-1){
         perror("Failed to attach memory segment");
         exit(1);
     }
@@ -159,9 +161,9 @@ int main(int argc, char *argv[]) {
 
 
     // Create an array of semaphoreshes one per segment
-    sem_t ** segment_semaphores = malloc(num_of_segments*sizeof(*segment_semaphores));
+    sem_t ** segment_semaphores = malloc(Segmentation_Degree*sizeof(*segment_semaphores));
  
-    for (int i = 0; i < num_of_segments; i++) {
+    for (int i = 0; i < Segmentation_Degree; i++) {
 
         char buffer[120];
         snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
@@ -176,13 +178,13 @@ int main(int argc, char *argv[]) {
     
 
     // Create childs
-    int *pid = malloc(N*sizeof(int));
-    for(int i = 0; i<N ; i++) {
+    int *pid = malloc(Number_Of_Childs*sizeof(int));
+    for(int i = 0; i<Number_Of_Childs ; i++) {
        pid[i] = fork();
     }
 
     srand(time(NULL));
-    for(int i = 0; i < N; i++) {
+    for(int i = 0; i < Number_Of_Childs; i++) {
         if(pid[i] < 0) {
             perror("Fork failed");
             exit(1);
@@ -192,12 +194,12 @@ int main(int argc, char *argv[]) {
         if (pid[i] == 0) {
             // Number of requests
             int k = 0;
-            while (k<number_of_requests) {
+            while (k<Number_of_requests) {
 
                 // <a,b> = <segment,line>
                 int a,b;
                 if (k == 0) {
-                    a = rand()%num_of_segments;
+                    a = rand()%Segmentation_Degree;
                     b = rand()%(lines/s_r); 
                 }
                 else {
@@ -239,7 +241,7 @@ int main(int argc, char *argv[]) {
     }
 
     int ready_children = 0;         // pote teleiwsan oles tis aithseis toys ta paidia
-    while (ready_children < N) {
+    while (ready_children < Number_Of_Childs) {
 
        if(sem_post(generic < 0)) { 
             perror("generic post failed on parent");
