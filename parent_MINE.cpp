@@ -193,7 +193,9 @@ int main(int argc, char *argv[]) {
     
 
     // Create childs
-    int *pid = malloc(Number_Of_Childs*sizeof(int));
+
+    pid_t  pid[Number_Of_Childs];
+
     for(int i = 0; i<Number_Of_Childs ; i++) {
        pid[i] = fork();
     }
@@ -206,46 +208,46 @@ int main(int argc, char *argv[]) {
         }
 
         // Children code
-        if (pid[i] == 0) {
-            // Number of requests
-            int k = 0;
-            while (k<Number_of_requests) {
+        // if (pid[i] == 0) {
+        //     // Number of requests
+        //     int k = 0;
+        //     while (k<Number_of_requests) {
 
-                // <a,b> = <segment,line>
-                int Random_Segment,Random_Line;
-                if (k == 0) {
-                    Random_Segment = rand() % Num_of_Segments;
-                    Random_Line = rand() % Lines_Per_Segment; 
-                }
-                else {
-                   ;
-                }
-                if(sem_wait(generic) < 0) {  
-                fprintf(stderr, "%dth semaphore wait fail\n", i);
-                exit(1);
-                }
+        //         // <a,b> = <segment,line>
+        //         int Random_Segment,Random_Line;
+        //         if (k == 0) {
+        //             Random_Segment = rand() % Num_of_Segments;
+        //             Random_Line = rand() % Lines_Per_Segment; 
+        //         }
+        //         else {
+        //            ;
+        //         }
+        //         if(sem_wait(generic) < 0) {  
+        //         fprintf(stderr, "%dth semaphore wait fail\n", i);
+        //         exit(1);
+        //         }
 
-                Shared_memory->temp_Segment = Random_Segment;
+        //         Shared_memory->temp_Segment = Random_Segment;
                 
-                if(sem_post(request_parent < 0)) { 
-                    perror("request_parent_post failed on parent");
-                    exit(1);
-                }
+        //         if(sem_post(request_parent < 0)) { 
+        //             perror("request_parent_post failed on parent");
+        //             exit(1);
+        //         }
 
-                if(sem_wait(parent_answer) < 0) {  
-                fprintf(stderr, "%dth semaphore wait fail\n", i);
-                exit(1);
-                }
+        //         if(sem_wait(parent_answer) < 0) {  
+        //         fprintf(stderr, "%dth semaphore wait fail\n", i);
+        //         exit(1);
+        //         }
 
-            }           
-            return;
-        } 
-        if (i==Number_Of_Childs-1) {    // an einai to teleutaio paidi poy dimioyrgeitai
-            if(sem_post(children_ready < 0)) { 
-                perror("request_parent_post failed on parent");
-                exit(1);
-            }
-        }
+        //     }           
+        //     return;
+        // } 
+        // if (i==Number_Of_Childs-1) {    // an einai to teleutaio paidi poy dimioyrgeitai
+        //     if(sem_post(children_ready < 0)) { 
+        //         perror("request_parent_post failed on parent");
+        //         exit(1);
+        //     }
+        // }
     }
 
     // // Parent code
