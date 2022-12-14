@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
 
     // Create shared memory
-    Shared_Memory* Shared_memory;
+    Shared_memory s_m;
     int shmid;
 
     if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
@@ -164,16 +164,16 @@ int main(int argc, char *argv[]) {
 
     // Parent upload text segment to shared memory
 
-    sem_t *parent_answer = sem_open("parent_answer", O_CREAT, SEM_PERMS, 0);
-    if (parent_answer == SEM_FAILED) {
+    sem_t *answerConsumer = sem_open("answerConsumer", O_CREAT, SEM_PERMS, 0);
+    if (answerConsumer == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
     }
 
     // All children ready
 
-    sem_t *children_ready = sem_open("children_ready", O_CREAT, SEM_PERMS, 0);
-    if (children_ready == SEM_FAILED) {
+    sem_t *answerProducer = sem_open("answerProducer", O_CREAT, SEM_PERMS, 0);
+    if (answerProducer == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
     }
@@ -256,13 +256,32 @@ int main(int argc, char *argv[]) {
                         exit(1);
                     }
 
+                    s_m->temp_Segment = curr_segment;
                     
+                     if(sem_post(answerConsumer) < 0){
+                        perror("sem_post failed on parent");
+                        exit(1);
+                    }
 
-                    if(sem_wait())
+                    // Wait for answer from producer
+                    if(sem_wait(answerProducer) < 0){
+                        perror("sem_wait failed on parent");
+                        exit(1);
+                    }
+                }
+                
+                if(sem_post(segment_semaphores[curr_segment]) < 0)  {
+                    perror("sem_wait failed on parent");
+                    exit(1);
+                    }
                 }
 
+                char* temp_buffer_text[MAX_LINE];
+                strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+                
+
             }           
-            return;
+            return 0;
         } 
 
     }
