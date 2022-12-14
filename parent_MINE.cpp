@@ -6,7 +6,6 @@
 #include <sys/wait.h>
 #include <time.h>
 #include <sys/shm.h>
-
 #include <fstream>
 #include <iostream>
 #include <stdio.h>
@@ -114,7 +113,7 @@ int main(int argc, char *argv[]) {
 
 
     // Create shared memory
-    shared_memory* Shared_memory;
+    Shared_Memory* Shared_memory;
     int shmid;
 
     if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
@@ -123,7 +122,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Attach memory segment
-    Shared_memory = (shared_memory*)shmat(shmid, NULL, 0);
+    Shared_memory = (Shared_Memory*)shmat(shmid, NULL, 0);
     if(Shared_memory == (void*)-1){
         perror("Failed to attach memory segment");
         exit(1);

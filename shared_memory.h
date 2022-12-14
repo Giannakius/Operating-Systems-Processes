@@ -6,4 +6,4 @@ struct shared_memory{
     int finished;
 };
 
-typedef struct shared_memory* shared_memory;
+typedef struct shared_memory* Shared_Memory;

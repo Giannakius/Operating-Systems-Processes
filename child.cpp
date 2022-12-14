@@ -10,7 +10,7 @@
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
 
-void child(int nlines, int N, int i, shared_memory semlock, sem_t* requestProducer, sem_t* answerProducer, sem_t* answerConsumer){
+void child(int nlines, int N, int i, Shared_Memory semlock, sem_t* requestProducer, sem_t* answerProducer, sem_t* answerConsumer){
 
     clock_t t;
     int sum_time = 0;   // Total time for N requests to server
