@@ -11,19 +11,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include "shared_memory.h"
 
 using namespace std;
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-
-#define MAX_LINE 300
-
-struct shared_memory{
-    int temp_Segment;  // request segment
-    char buffer[MAX_LINE];
-    int finished;
-};
-
 
 
 string* txt_to_string_segments(int Segmentation_Degree , string fileStr , int string_size , int lines_per_section)
@@ -78,7 +70,6 @@ int main(int argc, char *argv[]) {
     int Number_of_requests = atoi(argv[4]); //  from every child
 
 
-
     ////// Make The txt to string ////////////
     ifstream file(File_Name, ios::binary);
     string fileStr;
@@ -123,7 +114,7 @@ int main(int argc, char *argv[]) {
 
 
     // Create shared memory
-    struct shared_memory* Shared_memory;
+    shared_memory* Shared_memory;
     int shmid;
 
     if((shmid = shmget(IPC_PRIVATE, sizeof(Shared_memory), (S_IRUSR|S_IWUSR))) == -1){
@@ -208,12 +199,12 @@ int main(int argc, char *argv[]) {
         }
 
         // Children code
+
         // if (pid[i] == 0) {
         //     // Number of requests
         //     int k = 0;
         //     while (k<Number_of_requests) {
 
-        //         // <a,b> = <segment,line>
         //         int Random_Segment,Random_Line;
         //         if (k == 0) {
         //             Random_Segment = rand() % Num_of_Segments;

@@ -36,7 +36,7 @@ void child(int nlines, int N, int i, shared_memory semlock, sem_t* requestProduc
         
 
         // Write to shared memory segment
-        semlock->line = line;
+        semlock->temp_Segment = line;
 
         t = clock();    // Begin timing
 
@@ -57,7 +57,7 @@ void child(int nlines, int N, int i, shared_memory semlock, sem_t* requestProduc
         
         requests++;
         if(requests == N){
-            semlock->completed = 1;
+            semlock->finished = 1;
         }
 
         // Consumer answers
