@@ -46,6 +46,29 @@ string* txt_to_string_segments(int Segmentation_Degree , string fileStr , int st
 }
 
 
+// find a random Segment with propability 0.7 for the same segment and 0.3 for different
+int Rand_Segment(int segment , int Num_Of_Segments)
+{
+    int new_segment = segment;
+    int PITHANOTHTA = 1 + (rand() % 10);    // pithanotita 1 - 10 
+    
+    // An tyxei 1-2-3-4-5-6-7 diladi 70% tote menoyme sto idio segment
+    if (PITHANOTHTA<=7){
+        cout << "Idio segment " ; 
+    }
+    else { // An tyxei 8-9-10 , diladi 30% pithanotita tote pame se opoiodipote segment ektos apo ayto poy eimastan
+        while (new_segment == segment){
+            new_segment = 1 + (rand() % Num_Of_Segments);
+        }
+        cout << "allo segment " ; 
+    }
+    cout << new_segment << endl;
+    return new_segment ;
+}
+
+
+
+
 
 int main(int argc, char *argv[]) {
     
@@ -131,14 +154,6 @@ int main(int argc, char *argv[]) {
 
 
 
-    // Create request semaphore
-
-    sem_t *generic = sem_open("generic", O_CREAT, SEM_PERMS, 0);
-    if (generic == SEM_FAILED) {
-        perror("request parent semaphore error");
-        exit(1);
-    }
-
     // Child is ready to post new segment on shared memory
 
     sem_t *request_parent = sem_open("request_parent", O_CREAT, SEM_PERMS, 0);
@@ -168,12 +183,12 @@ int main(int argc, char *argv[]) {
     sem_t** segment_semaphores;
  
     for (int i = 0; i < Segmentation_Degree; i++) {
-        segment_semaphores[i] = new sem_t[Lines_Count/Segmentation_Degree] ;
+        segment_semaphores[i] = new sem_t[Num_of_Segments] ;
 
         char buffer[120];
         snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
-        
-        segment_semaphores[i] = sem_open(buffer, O_CREAT, SEM_PERMS, 0);
+        // Arxikopoiw oloys shmaioforous se 1
+        segment_semaphores[i] = sem_open(buffer, O_CREAT, SEM_PERMS, 1);
         if (segment_semaphores[i] == SEM_FAILED) {
             fprintf(stderr, "%dth semaphore open fail\n", i);
             exit(1);
@@ -191,6 +206,14 @@ int main(int argc, char *argv[]) {
     }
 
     srand(time(NULL));
+
+    int read_count[Segmentation_Degree];
+    int a;
+    for (a=0;a<Segmentation_Degree;a++){
+        read_count[a] = 0;
+    }
+
+
     for(int i = 0; i < Number_Of_Childs; i++) {
         if(pid[i] < 0) {
             perror("Fork failed");
@@ -199,45 +222,49 @@ int main(int argc, char *argv[]) {
 
         // Children code
 
-        // if (pid[i] == 0) {
-        //     // Number of requests
-        //     int k = 0;
-        //     while (k<Number_of_requests) {
+        if (pid[i] == 0) {
+            
+            // Number of requests
+            int k = 0;
 
-        //         int Random_Segment,Random_Line;
-        //         if (k == 0) {
-        //             Random_Segment = rand() % Num_of_Segments;
-        //             Random_Line = rand() % Lines_Per_Segment; 
-        //         }
-        //         else {
-        //            ;
-        //         }
-        //         if(sem_wait(generic) < 0) {  
-        //         fprintf(stderr, "%dth semaphore wait fail\n", i);
-        //         exit(1);
-        //         }
-
-        //         Shared_memory->temp_Segment = Random_Segment;
+            while (k<Number_of_requests) {
+                int curr_segment , curr_line;
+                if (k == 0) {
+                    curr_segment = rand() % Num_of_Segments;
+                } else {
+                    curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;
+                }
+                curr_line = rand() % Lines_Per_Segment;
+                // Ean eimaste sto teleytaio tmhma mporei na min yparxoyn akribws Lines_Per_Segment grammes
+                if (k==Segmentation_Degree-1){
+                    curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
+                }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
+                //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
                 
-        //         if(sem_post(request_parent < 0)) { 
-        //             perror("request_parent_post failed on parent");
-        //             exit(1);
-        //         }
+            
+                if(sem_wait(segment_semaphores[curr_segment]) < 0) {
+                    perror("Wait error");
+                    exit(1);
+                }
 
-        //         if(sem_wait(parent_answer) < 0) {  
-        //         fprintf(stderr, "%dth semaphore wait fail\n", i);
-        //         exit(1);
-        //         }
+                read_count[curr_segment]++;
 
-        //     }           
-        //     return;
-        // } 
-        // if (i==Number_Of_Childs-1) {    // an einai to teleutaio paidi poy dimioyrgeitai
-        //     if(sem_post(children_ready < 0)) { 
-        //         perror("request_parent_post failed on parent");
-        //         exit(1);
-        //     }
-        // }
+                if(read_count[curr_segment] == 1) {
+
+                    if(sem_wait(request_parent) < 0) {
+                        perror("Wait error");
+                        exit(1);
+                    }
+
+                    
+
+                    if(sem_wait())
+                }
+
+            }           
+            return;
+        } 
+
     }
 
     // // Parent code
