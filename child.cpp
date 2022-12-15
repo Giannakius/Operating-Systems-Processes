@@ -23,13 +23,11 @@ int Rand_Segment(int segment , int Num_Of_Segments)
     
     // An tyxei 1-2-3-4-5-6-7 diladi 70% tote menoyme sto idio segment
     if (PITHANOTHTA<=7){
-        cout << "Idio segment " ; 
     }
     else { // An tyxei 8-9-10 , diladi 30% pithanotita tote pame se opoiodipote segment ektos apo ayto poy eimastan
         while (new_segment == segment){
             new_segment = 1 + (rand() % Num_Of_Segments);
         }
-        cout << "allo segment " ; 
     }
     cout << new_segment << endl;
     return new_segment ;
@@ -46,7 +44,7 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
             curr_segment = rand() % Num_of_Segments;
 
         } else {
-            curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;
+            curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;    
         }
         curr_line = rand() % Lines_Per_Segment;
         // Ean eimaste sto teleytaio tmhma mporei na min yparxoyn akribws Lines_Per_Segment grammes
@@ -54,21 +52,15 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
             curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
         }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
         //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
-        cout << "curr_segment = " << curr_segment << endl;
-        int value;
-            sem_getvalue(segment_semaphores[curr_segment],&value);
-            cout <<"value = " <<  value << endl;
          
         if(sem_wait(segment_semaphores[curr_segment]) < 0) {
             perror("Wait error");
             exit(1);
         }
-        cout << "peos" << endl;
+        
         read_count[curr_segment]++;    
-        cout << "curr_segment: "<< curr_segment << "read_count:" << read_count[curr_segment] << endl;     
+           
         if(read_count[curr_segment] == 1) {
-            
-            
             
             if(sem_wait(request_parent) < 0) {
                 perror("Wait error");
@@ -95,11 +87,11 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
         }
 
         if(curr_segment == s_m->temp_Segment) {
-            //char temp_buffer_text[MAX_LINE];
-            //strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+
             string buffer_text = new char[MAX_LINE];
             buffer_text = s_m->buffer[curr_line];
             k++;
+            
         }
 
         if(sem_wait(segment_semaphores[curr_segment]) < 0){

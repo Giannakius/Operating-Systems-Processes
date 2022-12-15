@@ -133,6 +133,7 @@ int main(int argc, char *argv[]) {
     // Child is ready to post new segment on shared memory
 
     sem_t *request_parent = sem_open("request_parent", O_CREAT, SEM_PERMS, 1);
+    sem_unlink("request_parent");
     if (request_parent == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
@@ -141,6 +142,7 @@ int main(int argc, char *argv[]) {
     // Parent upload text segment to shared memory
 
     sem_t *answerConsumer = sem_open("answerConsumer", O_CREAT, SEM_PERMS, 0);
+    sem_unlink("answerConsumer");
     if (answerConsumer == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
@@ -149,6 +151,7 @@ int main(int argc, char *argv[]) {
     // All children ready
 
     sem_t *answerProducer = sem_open("answerProducer", O_CREAT, SEM_PERMS, 0);
+    sem_unlink("answerProducer");
     if (answerProducer == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
@@ -161,11 +164,11 @@ int main(int argc, char *argv[]) {
  
     for (int i = 0; i < Num_of_Segments; i++) {
         segment_semaphores[i] = new sem_t[Num_of_Segments] ;
-
         char buffer[120];
         snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
         // Arxikopoiw oloys shmaioforous se 1
         segment_semaphores[i] = sem_open(buffer, O_CREAT, SEM_PERMS, 1);
+        sem_unlink(buffer);
         if (segment_semaphores[i] == SEM_FAILED) {
             fprintf(stderr, "%dth semaphore open fail\n", i);
             exit(1);
@@ -210,8 +213,9 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
         
-        s_m->buffer=Segments_String[s_m->temp_Segment] ;
-
+        
+        s_m->buffer = Segments_String[s_m->temp_Segment];
+        
         if(sem_post(answerProducer)) {
             perror("sem post to parent failed");
             exit(1);
