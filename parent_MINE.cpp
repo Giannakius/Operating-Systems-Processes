@@ -17,7 +17,6 @@ using namespace std;
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
 
-
 string* txt_to_string_segments(int Segmentation_Degree , string fileStr , int string_size , int lines_per_section)
 {
 

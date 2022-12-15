@@ -1,14 +1,18 @@
 {
-  "name": "C++ Launch",
-  "type": "cppdbg",
-  "request": "launch",
-  "program": "${workspaceFolder}/a.out",
-  "args": ["arg1", "arg2"],
-  "environment": [{ "name": "config", "value": "Debug" }],
-  "cwd": "${workspaceFolder}/a.out",
   "configurations": [
-    
-    
-
+    {
+      "type": "by-gdb",
+      "request": "launch",
+      "name": "Launch(gdb)",
+      "program": "parent_MINE",
+      "cwd": "${workspaceRoot}"
+    },
+  {
+    "type": "by-gdb",
+    "request": "launch",
+    "name": "Launch(gdb)",
+    "program": "parent_MINE",
+    "cwd": "${workspaceRoot}"
+  }
   ]
 }
