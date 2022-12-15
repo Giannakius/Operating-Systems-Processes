@@ -44,11 +44,9 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
         if (k == 0) {             
             srand(time(NULL) ^ (getpid()<<16));
             curr_segment = rand() % Num_of_Segments;
-            cout << "first segment with random segment :"<< curr_segment << endl;
 
         } else {
             curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;
-            cout << k << " segment with random segment :"<< curr_segment << endl;
         }
         curr_line = rand() % Lines_Per_Segment;
         // Ean eimaste sto teleytaio tmhma mporei na min yparxoyn akribws Lines_Per_Segment grammes
@@ -56,20 +54,22 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
             curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
         }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
         //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
-
+cout << "curr_segment = " << curr_segment << endl;
         int value;
-        
+            sem_getvalue(request_parent,&value);
+            cout <<"value = " <<  value << endl;
+         
         if(sem_wait(segment_semaphores[curr_segment]) < 0) {
             perror("Wait error");
             exit(1);
         }
-
-        read_count[curr_segment]++;                
+        cout << "peos" << endl;
+        read_count[curr_segment]++;    
+        cout << "curr_segment: "<< curr_segment << "read_count:" << read_count[curr_segment] << endl;     
         if(read_count[curr_segment] == 1) {
-
-            sem_getvalue(request_parent,&value);
-        
-            cout <<"value = " <<  value << endl;
+            
+            
+            
             if(sem_wait(request_parent) < 0) {
                 perror("Wait error");
                 exit(1);

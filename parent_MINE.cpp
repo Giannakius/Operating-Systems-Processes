@@ -98,7 +98,6 @@ int main(int argc, char *argv[]) {
     else {
         Num_of_Segments = Lines_Count/Segmentation_Degree + 1;
     }
-
     // Create Txt File to Segments as Strings in an Array
     string* Segments_String = txt_to_string_segments(Segmentation_Degree , fileStr , String_Size ,Lines_Per_Segment);
     
@@ -202,7 +201,7 @@ int main(int argc, char *argv[]) {
     }
 
     // // Parent code
-    /*
+    
     while(s_m->finished < Number_Of_Childs) {
 
         
@@ -218,7 +217,6 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
      }
-     */
 
 
     // Close semaphores used by this child (if not done, leaks are present)
