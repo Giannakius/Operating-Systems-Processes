@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
     // Create an array of semaphoreshes one per segment
     sem_t** segment_semaphores;
  
-    for (int i = 0; i < Segmentation_Degree; i++) {
+    for (int i = 0; i < Num_of_Segments; i++) {
         segment_semaphores[i] = new sem_t[Num_of_Segments] ;
 
         char buffer[120];
@@ -193,10 +193,10 @@ int main(int argc, char *argv[]) {
         }
 
         // Children code
-        int curr_segment , curr_line;
+        int curr_line;
 
         if (pid[i] == 0) {
-            child(Number_of_requests,curr_segment,Num_of_Segments,curr_line, Lines_Per_Segment, Segmentation_Degree , read_count , s_m, segment_semaphores,request_parent, answerConsumer,answerProducer );
+            child(Number_of_requests,Num_of_Segments,curr_line, Lines_Per_Segment, Segmentation_Degree , read_count , s_m, segment_semaphores,request_parent, answerConsumer,answerProducer );
             exit(0);
         }
     }
@@ -219,5 +219,30 @@ int main(int argc, char *argv[]) {
         }
      }
      */
+
+
+    // Close semaphores used by this child (if not done, leaks are present)
+    if(sem_close(request_parent) < 0){
+        perror("sem_close(0) failed on child");
+        exit(1);
+    }
+
+    if(sem_close(answerConsumer) < 0){
+        perror("sem_close(1) failed on child");
+        exit(1);
+    }
+
+    if(sem_close(answerProducer) < 0){
+        perror("sem_close(2) failed on child");
+        exit(1);
+    }
+
+
+    for(int i =0; i < Num_of_Segments; i++) {
+        if(sem_close(segment_semaphores[i]) < 0){
+            perror("sem_close(segment_semaphores[i]) failed on child");
+            exit(1);
+        }
+    }
     return 0;
 }

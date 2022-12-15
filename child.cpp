@@ -36,10 +36,10 @@ int Rand_Segment(int segment , int Num_Of_Segments)
 }
 
 
-void child (int Number_of_requests,int curr_segment,int Num_of_Segments,int curr_line,int Lines_Per_Segment, int Segmentation_Degree , int* read_count , Shared_memory s_m, sem_t** segment_semaphores,sem_t* request_parent,sem_t* answerConsumer,sem_t* answerProducer ){
-    
+void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_Per_Segment, int Segmentation_Degree , int* read_count , Shared_memory s_m, sem_t** segment_semaphores,sem_t* request_parent,sem_t* answerConsumer,sem_t* answerProducer ){
     // Number of requests
     int k = 0;
+    int curr_segment;
     while (k<Number_of_requests) {
         if (k == 0) {             
             srand(time(NULL) ^ (getpid()<<16));
@@ -57,27 +57,25 @@ void child (int Number_of_requests,int curr_segment,int Num_of_Segments,int curr
         }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
         //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
 
-        cout << "firstttttttttttt " << curr_segment << endl;
         int value;
-        sem_getvalue(segment_semaphores[curr_segment],&value);
-        cout <<"value = " <<  value << endl;
+        
         if(sem_wait(segment_semaphores[curr_segment]) < 0) {
             perror("Wait error");
             exit(1);
         }
-        cout << "second " << curr_segment << endl; 
 
-        read_count[curr_segment]++;
-        cout <<"read count [" << curr_segment << "] = " <<  read_count[curr_segment] << endl;                
+        read_count[curr_segment]++;                
         if(read_count[curr_segment] == 1) {
 
+            sem_getvalue(request_parent,&value);
+        
+            cout <<"value = " <<  value << endl;
             if(sem_wait(request_parent) < 0) {
                 perror("Wait error");
                 exit(1);
             }
 
             s_m->temp_Segment = curr_segment;
-            cout << "AEKARA = " << s_m->temp_Segment << endl;
 
             if(sem_post(answerConsumer) < 0){
                 perror("sem_post failed on child");
@@ -117,11 +115,14 @@ void child (int Number_of_requests,int curr_segment,int Num_of_Segments,int curr
                 exit(1);
             }
         }
-
+        
         if(sem_post(segment_semaphores[curr_segment]) < 0)  {
-            perror("sem_wait failed on child");
+            perror("sem_post failed on child");
             exit(1);
         }
     }    
-    s_m->finished++;       
+ 
+    /////dravilas
+    s_m->finished++;   
+
 }
