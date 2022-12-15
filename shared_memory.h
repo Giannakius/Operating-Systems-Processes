@@ -12,3 +12,6 @@ struct shared_memory{
 };
 
 typedef struct shared_memory* Shared_memory;
+
+
+void child (int,int,int,int,int,int,int*,Shared_memory, sem_t**,sem_t* ,sem_t*,sem_t* );

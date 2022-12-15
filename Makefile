@@ -6,4 +6,4 @@ parent:
 	g++ parent_MINE.o child.o
 
 clean:
-	rm -f a.out
+	rm -f child.o parent_MINE.o a.out

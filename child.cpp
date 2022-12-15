@@ -35,81 +35,93 @@ int Rand_Segment(int segment , int Num_Of_Segments)
     return new_segment ;
 }
 
-void child(int nlines, int N, int i, Shared_memory semlock, sem_t* requestProducer, sem_t* answerProducer, sem_t* answerConsumer){
 
-    clock_t t;
-    int sum_time = 0;   // Total time for N requests to server
+void child (int Number_of_requests,int curr_segment,int Num_of_Segments,int curr_line,int Lines_Per_Segment, int Segmentation_Degree , int* read_count , Shared_memory s_m, sem_t** segment_semaphores,sem_t* request_parent,sem_t* answerConsumer,sem_t* answerProducer ){
+    
+    // Number of requests
+    int k = 0;
+    while (k<Number_of_requests) {
+        if (k == 0) {             
+            srand(time(NULL) ^ (getpid()<<16));
+            curr_segment = rand() % Num_of_Segments;
+            cout << "first segment with random segment :"<< curr_segment << endl;
 
-    // Every child begins with requests
-    int requests = 0;
-    while(requests < N){
-        printf("creating child %d\n",i);
-        // Wait for producer to finish initation of all children
-        if(sem_wait(requestProducer) < 0){
-            perror("sem_wait failed on parent");
-            exit(EXIT_FAILURE);
+        } else {
+            curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;
+            cout << k << " segment with random segment :"<< curr_segment << endl;
         }
-        printf("DONE\n");
-        if(requests >= N){
-            return;
+        curr_line = rand() % Lines_Per_Segment;
+        // Ean eimaste sto teleytaio tmhma mporei na min yparxoyn akribws Lines_Per_Segment grammes
+        if (k==Segmentation_Degree-1){
+            curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
+        }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
+        //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
+
+        cout << "firstttttttttttt " << curr_segment << endl;
+        int value;
+        sem_getvalue(segment_semaphores[curr_segment],&value);
+        cout <<"value = " <<  value << endl;
+        if(sem_wait(segment_semaphores[curr_segment]) < 0) {
+            perror("Wait error");
+            exit(1);
+        }
+        cout << "second " << curr_segment << endl; 
+
+        read_count[curr_segment]++;
+        cout <<"read count [" << curr_segment << "] = " <<  read_count[curr_segment] << endl;                
+        if(read_count[curr_segment] == 1) {
+
+            if(sem_wait(request_parent) < 0) {
+                perror("Wait error");
+                exit(1);
+            }
+
+            s_m->temp_Segment = curr_segment;
+            cout << "AEKARA = " << s_m->temp_Segment << endl;
+
+            if(sem_post(answerConsumer) < 0){
+                perror("sem_post failed on child");
+                exit(1);
+            }
+
+            // Wait for answer from producer
+            if(sem_wait(answerProducer) < 0){
+                perror("sem_wait failed on child");
+                exit(1);
+            }
         }
         
-        // Rand seed and generate random line
-        unsigned int curtime = time(NULL);
-        srand((unsigned int) curtime - getpid());
-        int line = rand() % nlines + 1;
-
-        // Write to shared memory segment
-        semlock->temp_Segment = line;
-
-        t = clock();    // Begin timing
-        printf("counting time\n");
-        // Consumer answers
-        if(sem_post(answerConsumer) < 0){
-            perror("sem_post failed on parent");
-            exit(EXIT_FAILURE);
+        if(sem_post(segment_semaphores[curr_segment]) < 0)  {
+            perror("sem_wait failed on child");
+            exit(1);
         }
 
-        // Wait for answer from producer
-        if(sem_wait(answerProducer) < 0){
-            perror("sem_wait failed on parent");
-            exit(EXIT_FAILURE);
+        if(curr_segment == s_m->temp_Segment) {
+            //char temp_buffer_text[MAX_LINE];
+            //strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+            string buffer_text = new char[MAX_LINE];
+            buffer_text = s_m->buffer[curr_line];
+            k++;
         }
 
-        t = clock() - t;    // End timing
-        sum_time += t;
-        
-        requests++;
-        if(requests == N){
-            semlock->finished = 1;
+        if(sem_wait(segment_semaphores[curr_segment]) < 0){
+            perror("sem_wait failed on child");
+            exit(1);
         }
 
-        // Consumer answers
-        if(sem_post(answerConsumer) < 0){
-            perror("sem_post failed on parent");
-            exit(EXIT_FAILURE);
+        read_count[curr_segment]--;
+
+        if (read_count[curr_segment] == 0) {
+            if(sem_post(request_parent) < 0) {
+                perror("post error");
+                exit(1);
+            }
         }
-        
-    }
 
-    double time_taken = ((double)sum_time)/CLOCKS_PER_SEC; // calculate the total elapsed time
-    printf("Child %d waited on average %.15lf seconds for server response\n", getpid(), time_taken/N);
-
-    // Close semaphores used by this child (if not done, leaks are present)
-    if(sem_close(requestProducer) < 0){
-        perror("sem_close(0) failed on child");
-        exit(EXIT_FAILURE);
-    }
-
-    if(sem_close(answerProducer) < 0){
-        perror("sem_close(1) failed on child");
-        exit(EXIT_FAILURE);
-    }
-
-    if(sem_close(answerConsumer) < 0){
-        perror("sem_close(2) failed on child");
-        exit(EXIT_FAILURE);
-    }
-
-    return;
+        if(sem_post(segment_semaphores[curr_segment]) < 0)  {
+            perror("sem_wait failed on child");
+            exit(1);
+        }
+    }    
+    s_m->finished++;       
 }

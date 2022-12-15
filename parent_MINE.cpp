@@ -196,112 +196,28 @@ int main(int argc, char *argv[]) {
         int curr_segment , curr_line;
 
         if (pid[i] == 0) {
-            // printf("%d\n",pid[i]);
-            // Number of requests
-            int k = 0;
-            // while (k<Number_of_requests) {
-                if (k == 0) {             
-                    srand(time(NULL) ^ (getpid()<<16));
-                    curr_segment = rand() % Num_of_Segments;
-                    cout << "first segment with random segment :"<< curr_segment << endl;
-
-                } else {
-                    curr_segment = Rand_Segment(curr_segment , Num_of_Segments) ;
-                    cout << k << " segment with random segment :"<< curr_segment << endl;
-                }
-                curr_line = rand() % Lines_Per_Segment;
-                // Ean eimaste sto teleytaio tmhma mporei na min yparxoyn akribws Lines_Per_Segment grammes
-                if (k==Segmentation_Degree-1){
-                    curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
-                }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
-                //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
-
-                cout << "first " << curr_segment ;
-                if(sem_wait(segment_semaphores[curr_segment]) < 0) {
-                    perror("Wait error");
-                    exit(1);
-                }
-                cout << endl << "second " << curr_segment << endl; 
-
-                read_count[curr_segment]++;
-                // cout <<"read count [" << curr_segment << "] = " <<  read_count[curr_segment] << endl;                
-                // if(read_count[curr_segment] == 1) {
-
-                //     if(sem_wait(request_parent) < 0) {
-                //         perror("Wait error");
-                //         exit(1);
-                //     }
-
-                //     s_m->temp_Segment = curr_segment;
-                //     cout << "AEKARA = " << s_m->temp_Segment << endl;
-
-                //     if(sem_post(answerConsumer) < 0){
-                //         perror("sem_post failed on child");
-                //         exit(1);
-                //     }
-
-                //     // Wait for answer from producer
-                //     if(sem_wait(answerProducer) < 0){
-                //         perror("sem_wait failed on child");
-                //         exit(1);
-                //     }
-                // }
-                
-                // if(sem_post(segment_semaphores[curr_segment]) < 0)  {
-                //     perror("sem_wait failed on child");
-                //     exit(1);
-                // }
-
-                // if(curr_segment == s_m->temp_Segment) {
-                //     //char temp_buffer_text[MAX_LINE];
-                //     //strcpy(temp_buffer_text , s_m->buffer[curr_line]);
-                //     string buffer_text = new char[MAX_LINE];
-                //     buffer_text = s_m->buffer[curr_line];
-                //     k++;
-                // }
-
-                // if(sem_wait(segment_semaphores[curr_segment]) < 0){
-                //     perror("sem_wait failed on child");
-                //     exit(1);
-                // }
-
-                // read_count[curr_segment]--;
-
-                // if (read_count[curr_segment] == 0) {
-                //     if(sem_post(request_parent) < 0) {
-                //         perror("post error");
-                //         exit(1);
-                //     }
-                // }
-
-                // if(sem_post(segment_semaphores[curr_segment]) < 0)  {
-                //     perror("sem_wait failed on child");
-                //     exit(1);
-                // }
-            // }    
-            // s_m->finished++;       
-            // return 0; 
+            child(Number_of_requests,curr_segment,Num_of_Segments,curr_line, Lines_Per_Segment, Segmentation_Degree , read_count , s_m, segment_semaphores,request_parent, answerConsumer,answerProducer );
+            exit(0);
         }
-        // exit(0);
     }
 
     // // Parent code
-
-    // while(s_m->finished < Number_Of_Childs) {
+    /*
+    while(s_m->finished < Number_Of_Childs) {
 
         
-    //     if(sem_wait(answerConsumer) < 0) {
-    //         perror("sem wait to parent failed");
-    //         exit(1);
-    //     }
+        if(sem_wait(answerConsumer) < 0) {
+            perror("sem wait to parent failed");
+            exit(1);
+        }
         
-    //     s_m->buffer=Segments_String[s_m->temp_Segment] ;
+        s_m->buffer=Segments_String[s_m->temp_Segment] ;
 
-    //     if(sem_post(answerProducer)) {
-    //         perror("sem post to parent failed");
-    //         exit(1);
-    //     }
-    //  }
-    // return 0;
-    while(true){;}
+        if(sem_post(answerProducer)) {
+            perror("sem post to parent failed");
+            exit(1);
+        }
+     }
+     */
+    return 0;
 }
