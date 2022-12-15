@@ -1,8 +1,13 @@
 #define MAX_SEGMENT 30000
-#defint MAX_LINE 300
+#define MAX_LINE 300
+#include <string.h>
+
+using namespace std;
+
+
 struct shared_memory{
     int temp_Segment;  // request segment
-    char buffer[MAX_SEGMENT];
+    string buffer;
     int finished;
 };
 

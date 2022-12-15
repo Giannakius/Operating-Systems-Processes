@@ -10,6 +10,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <string>
+#include <cstring>
 #include "shared_memory.h"
 
 using namespace std;
@@ -125,9 +126,9 @@ int main(int argc, char *argv[]) {
     // Create Txt File to Segments as Strings in an Array
     string* Segments_String = txt_to_string_segments(Segmentation_Degree , fileStr , String_Size ,Lines_Per_Segment);
     
-    for (x=0; x< Segmentation_Degree ; x++){
-        cout << Segments_String[x] << '\n' << '\n' << '\n';
-    }
+    // for (x=0; x< Segmentation_Degree ; x++){
+    //     cout << Segments_String[x] << '\n' << '\n' << '\n';
+    // }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,8 +146,8 @@ int main(int argc, char *argv[]) {
     }
 
     // Attach memory segment
-    Shared_memory = (Shared_Memory*)shmat(shmid, NULL, 0);
-    if(Shared_memory == (void*)-1){
+    s_m = (Shared_memory)shmat(shmid, NULL, 0);
+    if(s_m == (void*)-1){
         perror("Failed to attach memory segment");
         exit(1);
     }
@@ -218,6 +219,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Children code
+        int curr_segment , curr_line;
 
         if (pid[i] == 0) {
             
@@ -225,7 +227,7 @@ int main(int argc, char *argv[]) {
             int k = 0;
 
             while (k<Number_of_requests) {
-                int curr_segment , curr_line;
+                
                 if (k == 0) {
                     curr_segment = rand() % Num_of_Segments;
                 } else {
@@ -270,12 +272,13 @@ int main(int argc, char *argv[]) {
                 if(sem_post(segment_semaphores[curr_segment]) < 0)  {
                     perror("sem_wait failed on child");
                     exit(1);
-                    }
                 }
 
                 if(curr_segment == s_m->temp_Segment) {
-                    char* temp_buffer_text[MAX_LINE];
-                    strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+                    //char temp_buffer_text[MAX_LINE];
+                    //strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+                    string buffer_text = new char[MAX_LINE];
+                    buffer_text = s_m->buffer[curr_line];
                     k++;
                 }
 
@@ -296,11 +299,10 @@ int main(int argc, char *argv[]) {
                 if(sem_post(segment_semaphores[curr_segment]) < 0)  {
                     perror("sem_wait failed on child");
                     exit(1);
-                    }
-                }    
-                s_m->finished++;       
-                return ;
-            } 
+                }
+            }    
+            s_m->finished++;       
+            return 0; 
         }
     }
 
@@ -313,11 +315,12 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        s_m->buffer = Segments_String[s_m->temp_Segment] ;
+        s_m->buffer=Segments_String[s_m->temp_Segment] ;
 
         if(sem_post(answerProducer)) {
             perror("sem post to parent failed");
             exit(1);
         }
     }
+    return 0;
 }
