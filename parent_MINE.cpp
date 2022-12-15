@@ -259,28 +259,50 @@ int main(int argc, char *argv[]) {
                     s_m->temp_Segment = curr_segment;
                     
                      if(sem_post(answerConsumer) < 0){
-                        perror("sem_post failed on parent");
+                        perror("sem_post failed on child");
                         exit(1);
                     }
 
                     // Wait for answer from producer
                     if(sem_wait(answerProducer) < 0){
-                        perror("sem_wait failed on parent");
+                        perror("sem_wait failed on child");
                         exit(1);
                     }
                 }
                 
                 if(sem_post(segment_semaphores[curr_segment]) < 0)  {
-                    perror("sem_wait failed on parent");
+                    perror("sem_wait failed on child");
                     exit(1);
                     }
                 }
 
-                char* temp_buffer_text[MAX_LINE];
-                strcpy(temp_buffer_text , s_m->buffer[curr_line]);
-                
+                if(curr_segment == s_m->temp_Segment) {
+                    char* temp_buffer_text[MAX_LINE];
+                    strcpy(temp_buffer_text , s_m->buffer[curr_line]);
+                    k++;
+                }
 
-            }           
+                if(sem_wait(segment_semaphores[curr_segment]) < 0){
+                    perror("sem_wait failed on child");
+                    exit(1);
+                }
+
+                read_count[curr_segment]--;
+
+                if (read_count[curr_segment] == 0) {
+                    if(sem_post(request_parent) < 0) {
+                        perror("post error");
+                        exit(1);
+                    }
+                }
+
+                if(sem_post(segment_semaphores[curr_segment]) < 0)  {
+                    perror("sem_wait failed on child");
+                    exit(1);
+                    }
+                }
+            }    
+            s_m->finished++;       
             return 0;
         } 
 

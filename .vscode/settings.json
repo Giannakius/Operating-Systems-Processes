@@ -7,5 +7,6 @@
         "string_view": "cpp",
         "cstdlib": "c",
         "ostream": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
