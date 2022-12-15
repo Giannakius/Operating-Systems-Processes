@@ -54,9 +54,9 @@ void child (int Number_of_requests,int Num_of_Segments,int curr_line,int Lines_P
             curr_line = 0;///////////////////////dwahgfdkashjgehfgeashjkfgshejkfghjsegfahjesgfhjse
         }///////////////////////agkesjhgfjhksgfhsjegfhsejgfkajhesfghjgfsehjgfshjgfhsjefgashej
         //easulhfgshljkafjhesfjhsejfklsehjfhasejkfl
-cout << "curr_segment = " << curr_segment << endl;
+        cout << "curr_segment = " << curr_segment << endl;
         int value;
-            sem_getvalue(request_parent,&value);
+            sem_getvalue(segment_semaphores[curr_segment],&value);
             cout <<"value = " <<  value << endl;
          
         if(sem_wait(segment_semaphores[curr_segment]) < 0) {
@@ -124,5 +124,27 @@ cout << "curr_segment = " << curr_segment << endl;
  
     /////dravilas
     s_m->finished++;   
+    // Close semaphores used by this child (if not done, leaks are present)
+    if(sem_close(request_parent) < 0){
+        perror("sem_close(0) failed on child");
+        exit(1);
+    }
 
+    if(sem_close(answerConsumer) < 0){
+        perror("sem_close(1) failed on child");
+        exit(1);
+    }
+
+    if(sem_close(answerProducer) < 0){
+        perror("sem_close(2) failed on child");
+        exit(1);
+    }
+
+
+    for(int i =0; i < Num_of_Segments; i++) {
+        if(sem_close(segment_semaphores[i]) < 0){
+            perror("sem_close(segment_semaphores[i]) failed on child");
+            exit(1);
+        }
+    }
 }

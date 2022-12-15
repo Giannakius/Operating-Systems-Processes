@@ -217,30 +217,6 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
      }
-
-
-    // Close semaphores used by this child (if not done, leaks are present)
-    if(sem_close(request_parent) < 0){
-        perror("sem_close(0) failed on child");
-        exit(1);
-    }
-
-    if(sem_close(answerConsumer) < 0){
-        perror("sem_close(1) failed on child");
-        exit(1);
-    }
-
-    if(sem_close(answerProducer) < 0){
-        perror("sem_close(2) failed on child");
-        exit(1);
-    }
-
-
-    for(int i =0; i < Num_of_Segments; i++) {
-        if(sem_close(segment_semaphores[i]) < 0){
-            perror("sem_close(segment_semaphores[i]) failed on child");
-            exit(1);
-        }
-    }
+    
     return 0;
 }
