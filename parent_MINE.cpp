@@ -201,10 +201,6 @@ int main(int argc, char *argv[]) {
 
     pid_t  pid[Number_Of_Childs];
 
-    for(int i = 0; i<Number_Of_Childs ; i++) {
-       pid[i] = fork();
-    }
-
     srand(time(NULL));
 
     int read_count[Segmentation_Degree];
@@ -213,11 +209,12 @@ int main(int argc, char *argv[]) {
         read_count[a] = 0;
     }
 
-
-    for(int i = 0; i < Number_Of_Childs; i++) {
+    for(int i = 0; i<Number_Of_Childs ; i++) {
+       pid[i] = fork();
+    
         if(pid[i] < 0) {
-            perror("Fork failed");
-            exit(1);
+        perror("Fork failed");
+        exit(1);
         }
 
         // Children code
@@ -258,7 +255,7 @@ int main(int argc, char *argv[]) {
 
                     s_m->temp_Segment = curr_segment;
                     
-                     if(sem_post(answerConsumer) < 0){
+                    if(sem_post(answerConsumer) < 0){
                         perror("sem_post failed on child");
                         exit(1);
                     }
@@ -300,40 +297,27 @@ int main(int argc, char *argv[]) {
                     perror("sem_wait failed on child");
                     exit(1);
                     }
-                }
-            }    
-            s_m->finished++;       
-            return 0;
-        } 
-
+                }    
+                s_m->finished++;       
+                return ;
+            } 
+        }
     }
 
     // // Parent code
 
-    // if(sem_wait(children_ready) < 0) {  
-    //     perror("Wait children_ready error\n");
-    //     exit(1);
-    // }
+    while(s_m->finished < Number_Of_Childs) {
+        
+        if(sem_wait(answerConsumer) < 0) {
+            perror("sem wait to parent failed");
+            exit(1);
+        }
 
-    // int ready_children = 0;         // pote teleiwsan oles tis aithseis toys ta paidia
-    // while (ready_children < Number_Of_Childs) {
+        s_m->buffer = Segments_String[s_m->temp_Segment] ;
 
-    //    if(sem_post(generic < 0)) { 
-    //         perror("generic post failed on parent");
-    //         exit(1);
-    //     }
-
-    //     //  anevazo to segment stin kyria mnimi
-    //     int a_from_child = Shared_memory->a; // pairno to segment
-    //     fgets(Shared_memory->buffer,MAX_LINE,array_of_lines[s_r*a_from_child]);  
-    
-    //     // get line from children
-    //     // Shared_memory->finished = 0;
-    //     // int a_from_child = Shared_memory->a;
-    //     // int b_from_child = Shared_memory->b;
-    //     // int num_of_line = a_from_child*s_r + b_from_child;
-    //     // // give line to children
-    //     // fgets(Shared_memory->buffer,MAX_LINE,array_of_lines[num_of_line]);
-
-    // }
+        if(sem_post(answerProducer)) {
+            perror("sem post to parent failed");
+            exit(1);
+        }
+    }
 }
