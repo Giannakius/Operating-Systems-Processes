@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -8,7 +9,6 @@
 #include <time.h>
 #include <string.h>
 #include <sys/shm.h>
-#include <stdio.h>
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
 
@@ -153,9 +153,7 @@ int main(int argc, char *argv[]) {
             perror("Fork failed");
             exit(1);
         }
-        clock_t answer_start , answer_end;
-        answer_start = clock();
-        
+
         // Children code
         if (pid[i] == 0) {
 
@@ -166,7 +164,8 @@ int main(int argc, char *argv[]) {
             // Number of requests
             int k = 0;
             // clock for request and for answer
-            
+            clock_t request;
+            clock_t answer;
             while (k<number_of_requests) {
                 
                 int a,b; // a = desired segment , b = desired line
@@ -179,10 +178,9 @@ int main(int argc, char *argv[]) {
                     if (p > 7) a = rand()%num_of_segments;
                 }
                 b = rand()%s_r;
-               // clock_t request;
-                //clock_t answer_start , answer_end;
+                
                 // clock starting when child find her line                
-              //  request = clock();
+                request = clock();
 
                 // wait all children in segment semaphore (not the first time (sem_val = 0))
                 if(sem_wait(segment_semaphores[a]) < 0) {
@@ -205,10 +203,10 @@ int main(int argc, char *argv[]) {
                     sm->request_segment = a;
 
                     // request ends
-                    //request = clock() - request;
+                    request = clock() - request;
 
                     // clock starting when child make request
-                    //answer_start = clock();
+                    answer = clock();
 
                     // child ready
                     if(sem_post(child_ready) < 0){
@@ -239,12 +237,11 @@ int main(int argc, char *argv[]) {
                     
                     // child finished one request
                     k++;
-                      usleep(200000);
+                    
                     // child get the answer
-                    //  answer_end = clock();
-                    // double time_taken = ((double)answer_end-answer_start)/CLOCKS_PER_SEC; // calculate the total elapsed time
-                    //printf("Child %d waited on average %.15lf seconds for server response\n", getpid(), time_taken/N);
-                    //printf("%.15f <%d,%d>\n %s \n",time_taken,a,b,reading_line);
+                    answer = clock() - answer;
+
+                    fprintf(f,"%ld %ld <%d,%d>\n %s \n",answer,request,a,b,reading_line);
                 }
 
                 // Leaving reading section
@@ -304,9 +301,6 @@ int main(int argc, char *argv[]) {
             }
             exit(0); 
         }
-        answer_end = clock();
-        double time_taken = ((double)answer_end-answer_start)/CLOCKS_PER_SEC; // calculate the total elapsed time
-        printf("peos %f \n",time_taken);
     }
 
     // Parent code
