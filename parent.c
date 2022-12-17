@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
     
     // How many children is ready to read per segment   
     int *ready_children = malloc(num_of_segments*sizeof(int));  
-    for(int i = 0;i < num_of_segments; i++){ 
+    for(int i = 1;i <= num_of_segments; i++){ 
         ready_children[i] = 0;  
     }   
 
@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
     sm->finished = 0;
 
     int *pid = malloc(Number_of_Childs*sizeof(int));
-    for(int i = 0; i<Number_of_Childs ; i++) {
+    for(int i = 1; i<=Number_of_Childs ; i++) {
         
         pid[i] = fork();
         
