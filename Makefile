@@ -10,4 +10,4 @@ child.o: child.c
 	gcc -g -Wall -c child.c
 
 clean:
-	rm -f parent parent.o child.o child0 child1 child2
+	rm -f parent parent.o child.o Log_child0.txt Log_child1.txt Log_child2.txt Log_child3.txt Log_child4.txt Log_child5.txt
