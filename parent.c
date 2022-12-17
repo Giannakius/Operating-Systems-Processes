@@ -30,10 +30,10 @@ int main(int argc, char *argv[]) {
     }
 
     // Segmentation Degree // Bathmos Katatmisis
-    int s_r = atoi(argv[2]);
+    int Segmentation_Degree = atoi(argv[2]);
 
     // Check if segmentation rate is big
-    if (s_r > MAX_SEGMENTATION_DEGREE) {
+    if (Segmentation_Degree > MAX_SEGMENTATION_DEGREE) {
         perror("Segmentation rate is bigger than more Max segmentation rate\n");
         exit(1);
     }
@@ -41,7 +41,6 @@ int main(int argc, char *argv[]) {
  
     // Number of childs
     int Number_of_Childs = atoi(argv[3]);
-
 
     // Number of requests from every child
     int number_of_requests = atoi(argv[4]);
@@ -58,8 +57,15 @@ int main(int argc, char *argv[]) {
     
 
     // Number of segments
-    int num_of_segments = lines%s_r ? lines/s_r + 1 : lines/s_r;
-    
+    int num_of_segments; 
+    if (lines%Segmentation_Degree==1) {
+        num_of_segments = lines/Segmentation_Degree + 1 ;
+    }
+    else {
+        num_of_segments = lines/Segmentation_Degree;
+    }
+
+
 
     // Check if file is small
     if (lines < 1000) {
@@ -68,7 +74,7 @@ int main(int argc, char *argv[]) {
     }
     
     // Check if segmentation rate is bigger more than lines
-    if (s_r > lines) {
+    if (Segmentation_Degree > lines) {
         perror("Lines are bigger more than segmentation rate\n");
         exit(1);
     }
@@ -88,25 +94,25 @@ int main(int argc, char *argv[]) {
     }
     
     // Parent is open to request
-    sem_t *request_parent = sem_open("request_parent", O_CREAT, SEM_PERMS, 1);
-    sem_unlink("request_parent");
-    if (request_parent == SEM_FAILED) {
+    sem_t *Parent_Ready_For_Request = sem_open("Parent_Ready_For_Request", O_CREAT, SEM_PERMS, 1);
+    sem_unlink("Parent_Ready_For_Request");
+    if (Parent_Ready_For_Request == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
     }
 
     // Child ready to give a segment
-    sem_t *child_ready = sem_open("child_ready", O_CREAT, SEM_PERMS, 0);
-    sem_unlink("child_ready");
-    if (child_ready == SEM_FAILED) {
+    sem_t *Child_Ready_For_Segment = sem_open("Child_Ready_For_Segment", O_CREAT, SEM_PERMS, 0);
+    sem_unlink("Child_Ready_For_Segment");
+    if (Child_Ready_For_Segment == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
     }
 
     // Parent upload text segment to shared memory
-    sem_t *parent_answer = sem_open("parent_answer", O_CREAT, SEM_PERMS, 0);
-    sem_unlink("parent_answer");
-    if (parent_answer == SEM_FAILED) {
+    sem_t *Parent_Answer_Request = sem_open("Parent_Answer_Request", O_CREAT, SEM_PERMS, 0);
+    sem_unlink("Parent_Answer_Request");
+    if (Parent_Answer_Request == SEM_FAILED) {
         perror("request parent semaphore error");
         exit(1);
     }
@@ -151,18 +157,16 @@ int main(int argc, char *argv[]) {
 
         // Children code
         if (pid[i] == 0) {
-            child(number_of_requests,num_of_segments,i,Number_of_Childs,s_r ,ready_children , sm, segment_semaphores,request_parent,parent_answer,child_ready );
+            child(number_of_requests , num_of_segments , i , Number_of_Childs , Segmentation_Degree , ready_children , sm, segment_semaphores , Parent_Ready_For_Request , Parent_Answer_Request , Child_Ready_For_Segment );
         }
     }
-
-    // Parent code
 
     // Until all children fineshed their requests
     while (sm->finished < Number_of_Childs) {
         
         // wait until child upload desired segment
-        if(sem_wait(child_ready) < 0) {
-            perror("sem wait child_ready semaphore at parent failed");
+        if(sem_wait(Child_Ready_For_Segment) < 0) {
+            perror("sem wait Child_Ready_For_Segment semaphore at parent failed");
             exit(1);
         }
 
@@ -180,19 +184,19 @@ int main(int argc, char *argv[]) {
 
         // Find desired segment
         for(int i = 0; i < desired_segment; i ++) {
-            for(int j = 0 ; j < s_r; j++) {
+            for(int j = 0 ; j < Segmentation_Degree; j++) {
                 fgets(line,MAX_LINE,fptr);
             }
         }
         // Upload desired segment to shared memory
-        for(int j = 0 ; j < s_r; j++) {
+        for(int j = 0 ; j < Segmentation_Degree; j++) {
                 fgets(line,MAX_LINE,fptr);
                 strcpy(sm->buffer[j],line);
         }
         fseek(fptr,0,SEEK_SET);
 
 
-        if(sem_post(parent_answer) < 0) {
+        if(sem_post(Parent_Answer_Request) < 0) {
             perror("sem_post parent answer at parent failed");
             exit(1);
         }
