@@ -10,23 +10,12 @@
 #include <string.h>
 #include <sys/shm.h>
 
-#define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-
-#define MAX_LINE 300
-#define MAX_SR 300
-
-struct shared_memory{
-    int request_segment; 
-    int given_segment;
-    char buffer[MAX_SR][MAX_LINE];    
-    int finished;
-};
-typedef struct shared_memory* SharedMemory;
+#include "shared_memory.h"
 
 void child (int number_of_requests,int num_of_segments,int i,int N, int Segmentation_Degree , int* ready_children , SharedMemory s_m,
  sem_t** segment_semaphores,void* request_parent,void* parent_answer,void* child_ready ){
     char buffer[120];
-            snprintf(buffer, sizeof(buffer), "%s%d", "child", i);
+            snprintf(buffer, sizeof(buffer), "Log_%s%d.txt", "child", i);
             FILE *f = fopen(buffer, "w");
 
             // Number of requests
