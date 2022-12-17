@@ -9,41 +9,46 @@
 #include <time.h>
 #include <string.h>
 #include <sys/shm.h>
+#include "shared_memory.h"
 
 #define SEM_PERMS (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
 
-#define MAX_LINE 300
-#define MAX_SR 300
-
-struct shared_memory{
-    int request_segment; 
-    int given_segment;
-    char buffer[MAX_SR][MAX_LINE];    
-    int finished;
-};
-
-
-typedef struct shared_memory* SharedMemory;
-
-void child (int ,int ,int ,int , int  , int*  , SharedMemory , sem_t** ,void* ,void* ,void*);
-
 int main(int argc, char *argv[]) {
     
-    // Check arguements
+    // Check if the arguements is correct
     if (argc != 5) {
         perror("Give me a wrong inputs\n");
         exit(1);
     }
 
-    // Open file
+    // Open file and check if its empty
     FILE* fptr;
     fptr = fopen(argv[1],"r");
     if (fptr == NULL) {
         perror("You gave me wrong file\n");
         exit(1);
     }
-    
-    // Get number of lines
+
+    // Segmentation Degree // Bathmos Katatmisis
+    int s_r = atoi(argv[2]);
+
+    // Check if segmentation rate is big
+    if (s_r > MAX_SEGMENTATION_DEGREE) {
+        perror("Segmentation rate is bigger than more Max segmentation rate\n");
+        exit(1);
+    }
+
+ 
+    // Number of childs
+    int Number_of_Childs = atoi(argv[3]);
+
+
+    // Number of requests from every child
+    int number_of_requests = atoi(argv[4]);
+
+
+
+    // Get the number of lines of .txt
     int lines = 0;
     for (char i = getc(fptr); i != EOF; i = getc(fptr)) {
         if (i == '\n') lines++;
@@ -51,14 +56,6 @@ int main(int argc, char *argv[]) {
     lines++;
     fseek(fptr,0,SEEK_SET);
     
-    // Segmentation rate
-    int s_r = atoi(argv[2]);
-
-    // Check if segmentation rate is big
-    if (s_r > MAX_SR) {
-        perror("Segmentation rate is bigger than more Max segmentation rate\n");
-        exit(1);
-    }
 
     // Number of segments
     int num_of_segments = lines%s_r ? lines/s_r + 1 : lines/s_r;
@@ -130,12 +127,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Number of requests from every child
-    int number_of_requests = atoi(argv[4]);
 
- 
-    // Create childs
-    int N = atoi(argv[3]);
 
     
     // How many children is ready to read per segment   
@@ -147,8 +139,8 @@ int main(int argc, char *argv[]) {
     // 0 children have finished their requests
     sm->finished = 0;
 
-    int *pid = malloc(N*sizeof(int));
-    for(int i = 0; i<N ; i++) {
+    int *pid = malloc(Number_of_Childs*sizeof(int));
+    for(int i = 0; i<Number_of_Childs ; i++) {
         
         pid[i] = fork();
         
@@ -159,14 +151,14 @@ int main(int argc, char *argv[]) {
 
         // Children code
         if (pid[i] == 0) {
-            child(number_of_requests,num_of_segments,i,N,s_r ,ready_children , sm, segment_semaphores,request_parent,parent_answer,child_ready );
+            child(number_of_requests,num_of_segments,i,Number_of_Childs,s_r ,ready_children , sm, segment_semaphores,request_parent,parent_answer,child_ready );
         }
     }
 
     // Parent code
 
     // Until all children fineshed their requests
-    while (sm->finished < N) {
+    while (sm->finished < Number_of_Childs) {
         
         // wait until child upload desired segment
         if(sem_wait(child_ready) < 0) {
@@ -175,7 +167,7 @@ int main(int argc, char *argv[]) {
         }
 
         // Finished parent programm
-        if (sm->finished == N) break;
+        if (sm->finished == Number_of_Childs) break;
 
         // sleep for 20ms
         usleep(20000);

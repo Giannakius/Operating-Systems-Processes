@@ -8,6 +8,9 @@
         "unordered_map": "c",
         "vector": "c",
         "string_view": "c",
-        "initializer_list": "c"
+        "initializer_list": "c",
+        "shared_memory.h": "c",
+        "string.h": "c",
+        "types.h": "c"
     }
 }
