@@ -1,0 +1,40 @@
+Visited <Segment,Line> = <58,80>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ Oi2TdOyIFbbec4imATNrhhqH5X7SzVSRkPzUJ2ddsrDtdPB51fHx35jnLaGZ45FGpzmynhqXksc2u9INX2Kv62UydL
+ 
+Visited <Segment,Line> = <58,8>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ bsvOUwzxmSq2Gxg94f9FEr09PLwMG41oasDi3ZT6dqiTXMtKeJ6jnZKjCv7NAZ9U6Mv5YcMg7LI43WqLshSZIcXqic
+ 
+Visited <Segment,Line> = <58,46>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ YWMqWssksdSKFp7eqK73ENNdZ3M1dxdfwxjGIchX94WRCcwr0qRm71bg7QkAaIBgkWuIICORdTxLiHs5VxAhINacMq
+ 
+Visited <Segment,Line> = <47,58>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ 4mVl1MSubHL5v3Mjw2pTYqPCURx1jyblEAYUFng7CY3WJoPbmTIbMpkCxcxML9lO8HjZ4fZtL1skYluXPavRgp9Ak0
+ 
+Visited <Segment,Line> = <47,70>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ 0Fn8D9NJbFhLLSN6HBfelxASvnhIXT2h3YciNUtl4dVdpbUZ6nUzraj8paAfLTCmyIfXrJATDO3Yrk8aIMQ9RhR1S3
+ 
+Visited <Segment,Line> = <62,46>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ ooDnFAit4nhR1PsMyyrko2iCSWEb2ulJmXwFxWoN6vtMPNl3C3bLtxwxNZnvxd7I8Dg4KL3t3haIO7fc3e7DiqcjvO
+ 
+Visited <Segment,Line> = <62,42>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ 3hw4g7VuVpEqTaEMj8DzKNXtBCXasvXsdj4Cmrg29GBSLbSw36okUkPxT45QSX1AB1wKPbBpLeT2yqL3QdJ9QxnH4z
+ 
+Visited <Segment,Line> = <42,81>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ wgayVnNT0ikNwyTJ5VQmFYf6NtV8z9no9pOHqTL0qBB6dq5YfI9QAECrH5WX13dY7cjTdWo8YLtNkqZ7t5MS8rMYBv
+ 
+Visited <Segment,Line> = <42,48>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ 4qAWOehNtqHz6CmNtRJSP5dgyAIXggSq2lFpLYgLEPajMftYD6Qf1cuMbAnPDKVoAjaaqo9z0rMrcPDX7Yrlgi4T9l
+ 
+Visited <Segment,Line> = <42,32>
+ Request Time = 000000000000000 , Answer Time = 000000000000000  
+ FlJc2Ql7UUHKQ05u0Cdhqt9Rws83egEzQatWPRGAVZKB2clJDr9HCX34iauHdfJV0K1lBoScJZrTTmo6BnmRtF9BKd
+ 

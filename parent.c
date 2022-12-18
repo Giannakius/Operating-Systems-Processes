@@ -18,9 +18,9 @@ void child (int ,int ,int ,int , int  , int*  , SharedMemory , sem_t** ,void* ,v
 
 int main(int argc, char *argv[]) {
     
-    // Check arguements
+    // Check the arguements to be the right number of input
     if (argc != 5) {
-        perror("Give me a wrong inputs\n");
+        perror("You gave me wrong number of input's. \n");
         exit(1);
     }
 
@@ -28,53 +28,68 @@ int main(int argc, char *argv[]) {
     FILE* fptr;
     fptr = fopen(argv[1],"r");
     if (fptr == NULL) {
-        perror("You gave me wrong file\n");
+        perror("The file you gave me is empty. \n");
         exit(1);
     }
     
-    // Get number of lines
-    int lines = 0;
+    // Number of requests from every child
+    int number_of_requests = atoi(argv[4]);
+
+    // Create childs
+    int Number_of_Childs = atoi(argv[3]);
+
+
+    // Get number of Sum_of_Lines
+    int Sum_of_Lines = 0;
     for (char i = getc(fptr); i != EOF; i = getc(fptr)) {
-        if (i == '\n') lines++;
+        if (i == '\n') {
+            Sum_of_Lines++;
+        }
     }
-    lines++;
+    Sum_of_Lines++;
     fseek(fptr,0,SEEK_SET);
     
-    // Segmentation rate
-    int s_r = atoi(argv[2]);
+    // Segmentation_Degree // Bathmos katatmisis
+    int Segmentation_Degree = atoi(argv[2]);
 
     // Check if segmentation rate is big
-    if (s_r > MAX_SR) {
+    if (Segmentation_Degree > MAX_SEGMENTATION_RATE) {
         perror("Segmentation rate is bigger than more Max segmentation rate\n");
         exit(1);
     }
-
+ 
     // Number of segments
-    int num_of_segments = lines%s_r ? lines/s_r + 1 : lines/s_r;
+    int Num_of_Segments ; 
+    if (Sum_of_Lines % Segmentation_Degree == 1) {
+        Num_of_Segments = Sum_of_Lines / Segmentation_Degree + 1 ; 
+    }
     
+    else{
+        Num_of_Segments = Sum_of_Lines / Segmentation_Degree ; 
+    }
 
     // Check if file is small
-    if (lines < 1000) {
-        perror("You gave me a small text file\n");
+    if (Sum_of_Lines < 1000) {
+        perror("You gave me a small text file \n");
         exit(1);
     }
     
-    // Check if segmentation rate is bigger more than lines
-    if (s_r > lines) {
+    // Check if segmentation rate is bigger more than Sum_of_Lines
+    if (Segmentation_Degree > Sum_of_Lines) {
         perror("Lines are bigger more than segmentation rate\n");
         exit(1);
     }
     
     // Create shared memory
     int shmid;
-    SharedMemory sm;
-    if((shmid = shmget(IPC_PRIVATE, sizeof(*sm), 0666 | IPC_CREAT)) == -1){
+    SharedMemory S_M;
+    if((shmid = shmget(IPC_PRIVATE, sizeof(*S_M), 0666 | IPC_CREAT)) == -1){
         perror("Failed to create shared memory");
         exit(1);
     }
 
     // Attach memory segment
-    if((sm = shmat(shmid, NULL, 0)) == (void*)-1){
+    if((S_M = shmat(shmid, NULL, 0)) == (void*)-1){
         perror("Failed to attach memory segment");
         exit(1);
     }
@@ -103,10 +118,10 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
     
-    // Create an array of semaphoreshes one per segment
-    sem_t ** segment_semaphores = malloc(num_of_segments*sizeof(*segment_semaphores));
+    // Create an array of semaphorshes one per segment
+    sem_t ** segment_semaphores = malloc(Num_of_Segments*sizeof(*segment_semaphores));
  
-    for (int i = 0; i < num_of_segments; i++) {
+    for (int i = 0; i < Num_of_Segments; i++) {
 
         char buffer[120];
         snprintf(buffer, sizeof(buffer), "%s%d", "segment", i);
@@ -119,25 +134,18 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // Number of requests from every child
-    int number_of_requests = atoi(argv[4]);
-
- 
-    // Create childs
-    int N = atoi(argv[3]);
-
     
     // How many children is ready to read per segment   
-    int *ready_children = malloc(num_of_segments*sizeof(int));  
-    for(int i = 0;i < num_of_segments; i++){ 
+    int *ready_children = malloc(Num_of_Segments*sizeof(int));  
+    for(int i = 0;i < Num_of_Segments; i++){ 
         ready_children[i] = 0;  
     }   
 
     // 0 children have finished their requests
-    sm->finished = 0;
+    S_M->finished = 0;
 
-    int *pid = malloc(N*sizeof(int));
-    for(int i = 0; i<N ; i++) {
+    int *pid = malloc(Number_of_Childs*sizeof(int));
+    for(int i = 0; i<Number_of_Childs ; i++) {
         
         pid[i] = fork();
         
@@ -148,14 +156,12 @@ int main(int argc, char *argv[]) {
 
         // Children code
         if (pid[i] == 0) {
-            child(number_of_requests,num_of_segments,i,N,s_r ,ready_children , sm, segment_semaphores,request_parent,parent_answer,child_ready );
+            child(number_of_requests , Num_of_Segments , i , Number_of_Childs , Segmentation_Degree , ready_children , S_M, segment_semaphores , request_parent , parent_answer , child_ready);
         }
     }
 
-    // Parent code
-
     // Until all children fineshed their requests
-    while (sm->finished < N) {
+    while (S_M->finished < Number_of_Childs) {
         
         // wait until child upload desired segment
         if(sem_wait(child_ready) < 0) {
@@ -164,27 +170,27 @@ int main(int argc, char *argv[]) {
         }
 
         // Finished parent programm
-        if (sm->finished == N) break;
+        if (S_M->finished == Number_of_Childs) break;
 
         // sleep for 20ms
         usleep(20000);
 
         //  child upload this segment
-        int desired_segment = sm->request_segment;
+        int request_segment = S_M->request_segment;
 
         // find this segment
         char line[MAX_LINE];
 
         // Find desired segment
-        for(int i = 0; i < desired_segment; i ++) {
-            for(int j = 0 ; j < s_r; j++) {
+        for(int i = 0; i < request_segment; i ++) {
+            for(int j = 0 ; j < Segmentation_Degree; j++) {
                 fgets(line,MAX_LINE,fptr);
             }
         }
         // Upload desired segment to shared memory
-        for(int j = 0 ; j < s_r; j++) {
+        for(int j = 0 ; j < Segmentation_Degree; j++) {
                 fgets(line,MAX_LINE,fptr);
-                strcpy(sm->buffer[j],line);
+                strcpy(S_M->buffer[j],line);
         }
         fseek(fptr,0,SEEK_SET);
 
