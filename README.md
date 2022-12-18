@@ -16,5 +16,5 @@ D == Requests/Applications that the childs make <br />
 
 e.g = ``` ./parent BigTest.txt 100 4 5 ``` <br />
 
-use ```make clean``` to remove all the .o and the logs files.
+use ```make clean``` to remove all the .o and the logs files. <br /> <br />
 Remember To Drop A Star ⭐ ! 😊
