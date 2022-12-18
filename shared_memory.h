@@ -1,5 +1,5 @@
-#define MAX_LINE 300
-#define MAX_SEGMENTATION_RATE 300
+#define MAX_LINE 200
+#define MAX_SEGMENTATION_RATE 200
 
 struct shared_memory{
     int request_segment; 

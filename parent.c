@@ -154,7 +154,6 @@ int main(int argc, char *argv[]) {
             exit(1);
         }
 
-        // Children code
         if (pid[i] == 0) {
             child(number_of_requests , Num_of_Segments , i , Number_of_Childs , Segmentation_Degree , ready_children , S_M, segment_semaphores , request_parent , parent_answer , child_ready);
         }

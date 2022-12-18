@@ -15,7 +15,6 @@
 void child (int number_of_requests,int num_of_segments,int i,int N, int Segmentation_Degree , int* ready_children , SharedMemory s_m,
  sem_t** segment_semaphores,void* request_parent,void* parent_answer,void* child_ready ){
     
-    
     char buffer[120];
     snprintf(buffer, sizeof(buffer), "Log_%s%d.txt", "child", i);
     FILE *f = fopen(buffer, "w");
