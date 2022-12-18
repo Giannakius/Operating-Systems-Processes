@@ -28,34 +28,37 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
     int temp_request = 0;
 
     
-
     while (temp_request<number_of_requests) {
         
-        int a,b; // a = desired segment , b = desired line
+        int temp_segment , temp_line;
         if (temp_request == 0) {
             srand(time(NULL) ^ (getpid()<<16));
-            a = rand()%num_of_segments;
+            temp_segment = rand()%num_of_segments;
             
         } else {
-            int p = rand()%10 + 1; // p = propability
-            if (p > 7) a = rand()%num_of_segments;
+            int propability;
+            // there is 30% propability to go to some other segment and 70% to stay at the same segment.
+            propability = rand() % 10 + 1;
+            if (propability > 7) {
+                temp_segment = rand ( ) % num_of_segments;
+            }
         }
-        b = rand()%Segmentation_Degree;
+        temp_line = rand()%Segmentation_Degree;
         
         // clock starting when child find her line                
         request_clock = clock();
 
         // wait all children in segment semaphore (not the first time (sem_val = 0))
-        if(sem_wait(segment_semaphores[a]) < 0) {
-            fprintf(stderr, "error in wait semaphore %d", a);
+        if(sem_wait(segment_semaphores[temp_segment]) < 0) {
+            fprintf(stderr, "error in wait semaphore %d", temp_segment);
             exit(1);
         }
 
         // children of segment a is ready
-        ready_children[a]++;
+        ready_children[temp_segment]++;
 
-        // FiFo logic.
-        if(ready_children[a] == 1) {
+     
+        if(ready_children[temp_segment] == 1) {
 
             if(sem_wait(request_parent) < 0) {
                 perror("sem_wait failed on child");
@@ -63,7 +66,7 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
             }
 
             // Upload request segment to shared memory
-            s_m->request_segment = a;
+            s_m->request_segment = temp_segment;
 
             // request ends
             request_clock = clock() - request_clock;
@@ -85,18 +88,18 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
         }
         
         // Enter to reading section
-        if(sem_post(segment_semaphores[a]) < 0){
-            fprintf(stderr, "error in post semaphore %d", a);
+        if(sem_post(segment_semaphores[temp_segment]) < 0){
+            fprintf(stderr, "error in post semaphore %d", temp_segment);
             exit(1);
         }
         
         
         // Reading section
-        if(a == s_m->request_segment) {
+        if(temp_segment == s_m->request_segment) {
 
             // child reading requesting line
             char reading_line[MAX_LINE];
-            strcpy(reading_line,s_m->buffer[b]);
+            strcpy(reading_line,s_m->buffer[temp_line]);
             
             // child finished one request
             temp_request++;
@@ -104,20 +107,20 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
             // child get the answer
             answer_clock = clock() - answer_clock;
 
-            fprintf(f,"Visited <Segment,Line> = <%d,%d>\n Request Time = %.15ld , Answer Time = %.15ld  \n %s \n",a,b,request_clock,answer_clock,reading_line);
+            fprintf(f,"Visited <Segment,Line> = <%d,%d>\n Request Time = %.15ld , Answer Time = %.15ld  \n %s \n" , temp_segment , temp_line , request_clock , answer_clock , reading_line );
         }
 
         // Leaving reading section
-        if(sem_wait(segment_semaphores[a]) < 0) {
-            fprintf(stderr, "error in wait semaphore %d", a);
+        if(sem_wait(segment_semaphores[temp_segment]) < 0) {
+            fprintf(stderr, "error in wait semaphore %d", temp_segment);
             exit(1);
         }
         
         // Child of segment a finished
-        ready_children[a]--;
+        ready_children[temp_segment]--;
 
         // Change segment
-        if(ready_children[a] == 0) {
+        if(ready_children[temp_segment] == 0) {
             
             // Change segment
             if(sem_post(request_parent) < 0){
@@ -127,8 +130,8 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
         }
 
         // Next request
-        if(sem_post(segment_semaphores[a]) < 0) {
-            fprintf(stderr, "error in post semaphore %d", a);
+        if(sem_post(segment_semaphores[temp_segment]) < 0) {
+            fprintf(stderr, "error in post semaphore %d", temp_segment);
             exit(1);
         }
     }
