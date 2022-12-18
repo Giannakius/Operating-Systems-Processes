@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
     // Create shared memory
     int shmid;
     SharedMemory S_M;
+    
     if((shmid = shmget(IPC_PRIVATE, sizeof(*S_M), 0666 | IPC_CREAT)) == -1){
         perror("Failed to create shared memory");
         exit(1);

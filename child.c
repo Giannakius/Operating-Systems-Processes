@@ -42,7 +42,7 @@ void child (int number_of_requests,int num_of_segments,int i,int N, int Segmenta
                 temp_segment = rand ( ) % num_of_segments;
             }
         }
-        temp_line = rand()%Segmentation_Degree;
+        temp_line = rand() % Segmentation_Degree;
         
         // clock starting when child find her line                
         request_clock = clock();
