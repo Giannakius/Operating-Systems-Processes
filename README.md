@@ -8,13 +8,13 @@ To run the code use this command:
 ```make```
 ```./parent A B C D ```
 
-where: 
-A == BigText.txt (the txt file)
-B == Segmentation Rate
-C == How many childs to create
-D == Requests/Applications that the childs make
+where: <br />
+A == BigText.txt (the txt file) <br />
+B == Segmentation Rate <br />
+C == How many childs to create <br />
+D == Requests/Applications that the childs make <br />
 
-e.g = <sub> ./parent BigTest.txt 100 4 5 </sub>
+e.g = ``` ./parent BigTest.txt 100 4 5 ```
 
 
 Remember To Drop A Star ⭐ ! 😊
