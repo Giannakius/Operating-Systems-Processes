@@ -7,7 +7,7 @@ Pronunciation on this pdf:OS1-K22-2022.pdf
 To run the code use this command:
 <sub> make </sub>
 <sub> ./parent A B C D </sub>
-
+```TEST```
 where: 
 A == BigText.txt (the txt file)
 B == Segmentation Rate
